@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:14.13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: web_app_production
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - web-app-network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:3000"
+      - "80:3000"
+    depends_on:
+      - db
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgres://postgres:password@db:5432/web_app_production
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY} # You need to set this in your environment
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+    volumes:
+      - ".:/rails"   # Mount your app code
+    networks:
+      - web-app-network
+
+volumes:
+  db_data:
+
+networks:
+  web-app-network:
